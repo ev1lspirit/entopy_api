@@ -1,0 +1,6 @@
+environs==14.1.0
+alembic
+sqlalchemy
+sqlmodel
+asyncpg
+psycopg2

@@ -1,0 +1,5 @@
+.venv
+deployments
+secrets
+.env
+logs
