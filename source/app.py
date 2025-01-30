@@ -5,7 +5,10 @@ from aiogram import Bot, Dispatcher
 from source.config import Config
 from source.log import setup_logging
 from contextlib import asynccontextmanager
+
+from source.utils import include_routers
 from .app_state import get_app_state
+
 
 
 @asynccontextmanager
@@ -20,6 +23,7 @@ setup_logging(log_filename="app.log")
 
 bot = Bot(token=Config.BOT_TOKEN)
 dispatcher = Dispatcher()
+include_routers(dispatcher)
 
 
 async def main():

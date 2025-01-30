@@ -1,0 +1,1 @@
+from .calculate_entropy_task import celery_task

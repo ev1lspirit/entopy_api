@@ -8,7 +8,7 @@ celery_app = Celery(
     broker=Config.REDIS_DSN,
     backend=Config.POSTGRESQL_DSN,
     task_track_started=True,
-    include=["source.celery.tagme_tasks.tasks"],
+    include=["source.celery.entropy_tasks"],
 )
 
 
