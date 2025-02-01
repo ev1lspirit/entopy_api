@@ -1,10 +1,13 @@
 import logging
 from asyncio import current_task
+from typing import Optional
 
 from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine, async_sessionmaker, \
     async_scoped_session
 
+from database.sql.entropy_repository import EntropyRepository
+from database.sql.user_repository import UserRepository
 from source.config import DatabaseSettings
 
 
@@ -15,6 +18,13 @@ class Database:
         self.engine = None
         self.session_maker = None
         self.scoped_session = None
+        self.entropy_repository: Optional[EntropyRepository] = None
+        self.user_repository = None
+
+    async def init_repo(self):
+        self.entropy_repository = EntropyRepository(self)
+        self.user_repository = UserRepository(self)
+
 
     async def create(self):
         self.engine = AsyncEngine(

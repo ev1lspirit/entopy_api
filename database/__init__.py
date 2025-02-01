@@ -16,7 +16,7 @@ async def init_database():
         try:
             logger.debug('Attempting to connect to the database...')
             await db.create()
-            #await db.init_repo()
+            await db.init_repo()
             logger.info('Successfully connected to the database!')
             break
         except gaierror as e:

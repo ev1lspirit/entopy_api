@@ -46,12 +46,14 @@ class DatabaseSettings:
         )
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class Config:
     BOT_TOKEN = env("BOT_TOKEN")
 
     LOGS_DIR = Path(PROJECT_DIR.parent, "logs")
     REDIS_DSN = env("REDIS_DSN")
     REDIS_PASS = env("REDIS_PASS")
+
+    MAX_VOICE_DURATION_LIMIT: int = env.int("MAX_VOICE_DURATION_LIMIT")
 
     POSTGRESQL_DSN = DatabaseSettings.connection_link_sync_with_prefix()

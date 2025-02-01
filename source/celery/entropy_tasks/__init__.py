@@ -1,1 +1,1 @@
-from .calculate_entropy_task import celery_task
+from .calculate_entropy_task import calculate_voice_entropy
