@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def bot_lifespan(bot: Bot):
-    app_state = get_app_state(bot)
+async def bot_lifespan():
+    app_state = get_app_state()
     await app_state.startup()
     logging.info("App state was initialized...")
     yield
@@ -33,9 +33,8 @@ dispatcher = Dispatcher()
 include_routers(dispatcher)
 
 
-
 async def main():
-    async with bot_lifespan(bot=bot):
+    async with bot_lifespan():
         await dispatcher.start_polling(bot)
 
 if __name__ == "__main__":

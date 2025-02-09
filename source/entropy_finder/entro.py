@@ -9,9 +9,9 @@ import numpy as np
 from itertools import chain
 from scipy.ndimage import gaussian_filter
 from scipy.signal import resample, stft, medfilt
-from custom_types import RawWave, SignalTypes, EntropyRecord
+from .custom_types import RawWave, SignalTypes, EntropyRecord
 import math
-from utils import no_yield
+from .utils import no_yield
 from functools import cached_property
 
 
@@ -23,13 +23,13 @@ def normalize_volume(*, leader: FilteredSoundwave, follower: FilteredSoundwave) 
     target_ratio = (leader.rms + follower.rms) / 2
     return (
         leader.from_numpy(
-            data=leader.normalize_to_rms(target_ratio),
+            data=leader.apply_rms_normalization(target_ratio),
             sample_rate=leader.sample_rate,
             name=leader.name,
             label=leader.label
         ),
         follower.from_numpy(
-            data=follower.normalize_to_rms(target_ratio),
+            data=follower.apply_rms_normalization(target_ratio),
             sample_rate=follower.sample_rate,
             name=follower.name,
             label=follower.label
@@ -90,7 +90,7 @@ class BaseSoundwave:
     @preserve_metadata(fields=("name", "label"))
     def normalize(self, target_ratio: float) -> BaseSoundwave:
         return self.from_numpy(
-            sample_rate=self.sample_rate, data=self.normalize_to_rms(target_ratio)
+            sample_rate=self.sample_rate, data=self.apply_rms_normalization(target_ratio)
         )
 
     @preserve_metadata(fields=("name",  "label"))
@@ -148,7 +148,7 @@ class BaseSoundwave:
 
     def extaverage(self, *, audio=None):
         if audio is None:
-            audio = self.wave.data
+            audio = self.points
         assert len(audio) > 2, "Sample must contain more than 2 points"
         increasing = False if audio[1] < audio[0] else True
         average_min = 0
@@ -272,7 +272,13 @@ class BaseSoundwave:
     def rms(self):
         return np.sqrt(np.sum(np.power(self.points, 2)) / self.points.shape[0])
 
-    def normalize_to_rms(self, target_ratio):
+
+    @cached_property
+    def average_extremum(self) -> tuple[float, float]:
+        return self.extaverage()
+
+
+    def apply_rms_normalization(self, target_ratio):
         ratio = target_ratio / self.rms
         return self.points * ratio
 
@@ -346,6 +352,9 @@ class FilteredSoundwave(BaseSoundwave):
             return self._get_nk_intervals(n, k)
         raise ValueError("n cannot be None or nonint")
 
+    def sequential_entropy(self, *, n, k):
+        return self._calculate_entropy(sample=self.points, n=n, k=k)
+
     def _calculate_entropy(self, sample, *, n, k):
         intervals = self.get_intervals(n=n, k=k)
         audio = np.array(sorted(sample))
@@ -355,7 +364,6 @@ class FilteredSoundwave(BaseSoundwave):
         interval_index = 0
         total_processed = 0
 
-        # freqs = defaultdict(float)
         probability_sum = 0
 
         while index < len(audio):
@@ -366,7 +374,6 @@ class FilteredSoundwave(BaseSoundwave):
                     p = frequency / len(audio)
                     probability_sum += p
                     total_processed += frequency
-                    #freqs[intervals[interval_index]] = frequency
                     psum -= p * math.log2(p)
                     frequency = 0
                     yield EntropyRecord(psum, probability_sum, np.mean((intervals[interval_index][0], intervals[interval_index][1])),
@@ -393,7 +400,6 @@ class FilteredSoundwave(BaseSoundwave):
         )
 
     def entropy(self, n=None, k=None):
-
         return no_yield(self._calculate_entropy)(self.wave.data, n=n, k=k)
 
     @property

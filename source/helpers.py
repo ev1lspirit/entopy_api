@@ -1,9 +1,10 @@
 import asyncio
-import inspect
 import logging
-from functools import wraps
-from typing import Callable, Coroutine, Any, TypeVar
-
+from functools import wraps, partial
+from typing import Callable, Coroutine, Any, TypeVar, Awaitable, Optional
+import inspect
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State
 
 T = TypeVar("T")
 
@@ -31,6 +32,8 @@ def run_sync(func: Coroutine[Any, Any, T]) -> T:
     loop = asyncio.get_event_loop()
     result = loop.run_until_complete(func)
     return result
+
+
 
 
 def ensure_event_loop(celery_task: Callable) -> Callable:

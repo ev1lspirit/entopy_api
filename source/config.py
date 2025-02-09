@@ -55,5 +55,9 @@ class Config:
     REDIS_PASS = env("REDIS_PASS")
 
     MAX_VOICE_DURATION_LIMIT: int = env.int("MAX_VOICE_DURATION_LIMIT")
+    MAX_FILE_SIZE: int = env.int("MAX_FILE_SIZE")
+    DEFAULT_SAMPLE_RATE: int = env.int("DEFAULT_SAMPLE_RATE")
+    UNIVERSAL_VOLUME_RATIO: float = env.float("UNIVERSAL_VOLUME_RATIO")
+    REDIS_AUDIO_EXPIRE_TIME: int = env.int("REDIS_AUDIO_EXPIRE_TIME")
 
     POSTGRESQL_DSN = DatabaseSettings.connection_link_sync_with_prefix()

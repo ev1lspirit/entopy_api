@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import Optional
+
 import numpy as np
 
 
@@ -7,6 +9,7 @@ import numpy as np
 class RawWave:
     sample_rate: int
     data: np.ndarray
+    wave_id: Optional[str] = None
 
     @property
     def duration(self):

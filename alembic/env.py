@@ -1,15 +1,13 @@
 
 import logging
+
 import alembic.config
-import sqlalchemy
 from alembic import context
 from sqlalchemy import create_engine, pool
-from sqlmodel import SQLModel
 
 from source.config import DatabaseSettings
 from source.log import setup_logging
 from source.models.vectors import *
-
 
 # Загружаем конфигурацию Alembic
 alembic_cfg = alembic.config.Config("alembic/alembic.ini")

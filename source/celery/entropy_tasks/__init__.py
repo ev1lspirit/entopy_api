@@ -1,1 +1,2 @@
 from .calculate_entropy_task import calculate_voice_entropy
+from .preprocess_voice_task import preprocess_voice

@@ -1,7 +1,7 @@
 import os
 from functools import wraps
 import typing as tp
-from custom_types import RawWave
+from .custom_types import RawWave
 import scipy.io.wavfile as wav
 import numpy as np
 

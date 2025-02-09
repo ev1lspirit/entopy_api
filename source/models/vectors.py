@@ -12,21 +12,17 @@ from sqlmodel import SQLModel, Field
 class VectorizedVoice(SQLModel, table=True):
     __tablename__ = "voice"
 
-    voice_id: uuid.UUID = Field(SA_UUID(as_uuid=True), primary_key=True)
+    voice_id: str = Field(SA_UUID(as_uuid=True), primary_key=True)
     embedding: list[float] = Field(sa_column=Column(ARRAY(Float)))
     sample_rate: int = Field(nullable=False)
     detetime_sent: datetime
     sender_id: int = Field(nullable=False)
     sender_username: Optional[str]
-
-    @reconstructor  # This runs after SQLAlchemy loads the object
-    def convert_embedding(self):
-        if isinstance(self.embedding, list):  # Ensure it's a list before conversion
-            self.embedding = np.array(self.embedding, dtype=np.float32)
+    preprocessed: bool = Field(nullable=False)
 
 
 class AnalyzedVoice(SQLModel, table=True):
-    voice_id: uuid.UUID = Field(primary_key=True, foreign_key="voice.voice_id")
+    voice_id: str = Field(primary_key=True, foreign_key="voice.voice_id")
     entropy: float = Field(nullable=False)
     average_entropy: Optional[float]
     overlapping_entropy: Optional[float]

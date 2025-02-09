@@ -1,13 +1,13 @@
 import inspect
 import logging
-from typing import Callable
 from functools import wraps
+from typing import Callable, Optional
 
-from aiogram import Bot
+from redis import Redis
 
 from database import init_database
+from source.config import Config
 from source.helpers import run_sync
-
 
 logger = logging.getLogger(__name__)
 
@@ -24,23 +24,15 @@ class AppStateSingletonMeta(type):
 
 class AppState(metaclass=AppStateSingletonMeta):
 
-    def __init__(self, bot: Bot):
-        self.bot = bot
-
-    @property
-    def bot(self):
-        return self._bot
-
-    @bot.setter
-    def bot(self, value):
-        assert isinstance(value, (Bot, type(None))), "Bot should be a bot instance"
-        self._bot = value
+    def __init__(self):
+        self.redis_app: Optional[Redis] = None
 
     async def startup(self):
         """
         Инициализация всех необходимых объектов.
         """
         self.db = await init_database()
+        self.redis_app = Redis.from_url(url=Config.REDIS_DSN)
 
     async def shutdown(self):
         """
@@ -71,8 +63,9 @@ def inject_app_state(celery_task: Callable = None) -> Callable:
         return result
     return celery_wrapper
 
-def get_app_state(bot: Bot = None):
-    app_state = AppState(bot=bot)
+
+def get_app_state():
+    app_state = AppState()
     return app_state
 
 
